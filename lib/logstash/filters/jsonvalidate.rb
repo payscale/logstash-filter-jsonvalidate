@@ -37,8 +37,10 @@ class LogStash::Filters::Jsonvalidate < LogStash::Filters::Base
     @logger.debug? and @logger.debug("Running jsonvalidate filter", :event => event)
 
     @test_fields.each do |field| 
-      if !valid_json?(event[field])
-        event["tags"] << @failed_test_tag unless event["tags"].include?(@failed_test_tag)
+      if !valid_json?(event.get("#{field}"))
+        unless event.get("tags").include?(@failed_test_tag)
+            event.set("tags", (event.get("tags") <<  @failed_test_tag)) #<< tag unless event.get("tags").include?(tag)
+        end
       end
     end
 
